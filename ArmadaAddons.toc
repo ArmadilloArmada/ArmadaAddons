@@ -1,0 +1,8 @@
+## Interface: 120005
+## Title: Armada Addons
+## Notes: Central hub for all Armada addons.
+## Author: Armada Studios
+## Version: 1.0.0
+## Category: Miscellaneous
+
+Core.lua
