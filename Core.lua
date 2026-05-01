@@ -161,7 +161,15 @@ end
 local function UpdateTabButtons()
     if not ui.tabs then return end
     for tab, button in pairs(ui.tabs) do
-        button:SetButtonState(db.activeTab == tab and "PUSHED" or "NORMAL", db.activeTab == tab)
+        local active = db.activeTab == tab
+        button:SetButtonState(active and "PUSHED" or "NORMAL", active)
+        if button:GetFontString() then
+            if active then
+                button:GetFontString():SetTextColor(1, 0.8, 0.1)
+            else
+                button:GetFontString():SetTextColor(0.86, 0.82, 0.68)
+            end
+        end
     end
 end
 
@@ -188,7 +196,8 @@ local function RenderAddons()
             tile = true, tileSize = 16, edgeSize = 12,
             insets = { left = 3, right = 3, top = 3, bottom = 3 },
         })
-        card:SetBackdropColor(0.05, 0.05, 0.06, 0.9)
+        card:SetBackdropColor(0.03, 0.04, 0.05, 0.88)
+        card:SetBackdropBorderColor(0.18, 0.23, 0.28, 0.95)
 
         local bar = card:CreateTexture(nil, "ARTWORK")
         bar:SetSize(4, CARD_HEIGHT - 8)
@@ -300,13 +309,21 @@ local function RenderSettings()
     }
 
     for index, data in ipairs(rows) do
-        local row = CreateFrame("Button", nil, ui.settingsContainer)
+        local row = CreateFrame("Button", nil, ui.settingsContainer, "BackdropTemplate")
         row:SetSize(428, 52)
         row:SetPoint("TOPLEFT", 0, -((index - 1) * 58))
+        row:SetBackdrop({
+            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 16, edgeSize = 12,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 },
+        })
+        row:SetBackdropColor(0.03, 0.04, 0.05, 0.86)
+        row:SetBackdropBorderColor(0.18, 0.23, 0.28, 0.95)
 
         local bg = row:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints()
-        bg:SetColorTexture(1, 1, 1, index % 2 == 0 and 0.04 or 0)
+        bg:SetColorTexture(0, 0, 0, 0)
 
         local left = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         left:SetPoint("TOPLEFT", 8, -8)
@@ -331,8 +348,14 @@ local function RenderSettings()
             CreateUI()
             ui.frame:Show()
         end)
-        row:SetScript("OnEnter", function() bg:SetColorTexture(1, 1, 1, 0.12) end)
-        row:SetScript("OnLeave", function() bg:SetColorTexture(1, 1, 1, index % 2 == 0 and 0.04 or 0) end)
+        row:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.07, 0.09, 0.11, 0.92)
+            self:SetBackdropBorderColor(1, 0.8, 0.1, 0.8)
+        end)
+        row:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.03, 0.04, 0.05, 0.86)
+            self:SetBackdropBorderColor(0.18, 0.23, 0.28, 0.95)
+        end)
     end
 end
 
@@ -368,11 +391,13 @@ function CreateUI()
     frame:SetClampedToScreen(true)
     frame:SetAlpha(db.frameOpacity)
     frame:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-        tile = true, tileSize = 32, edgeSize = 32,
-        insets = { left = 10, right = 10, top = 10, bottom = 10 },
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 16, edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 },
     })
+    frame:SetBackdropColor(0.015, 0.018, 0.022, 0.96)
+    frame:SetBackdropBorderColor(0.42, 0.34, 0.08, 1)
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
@@ -398,6 +423,18 @@ function CreateUI()
         db.position.w = w
         db.position.h = h
     end)
+
+    frame.header = frame:CreateTexture(nil, "BACKGROUND")
+    frame.header:SetPoint("TOPLEFT", 5, -5)
+    frame.header:SetPoint("TOPRIGHT", -5, -5)
+    frame.header:SetHeight(76)
+    frame.header:SetColorTexture(0.12, 0.08, 0.02, 0.82)
+
+    frame.headerLine = frame:CreateTexture(nil, "ARTWORK")
+    frame.headerLine:SetPoint("TOPLEFT", 16, -76)
+    frame.headerLine:SetPoint("TOPRIGHT", -16, -76)
+    frame.headerLine:SetHeight(1)
+    frame.headerLine:SetColorTexture(1, 0.8, 0.1, 0.55)
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     frame.title:SetPoint("TOPLEFT", 18, -16)
